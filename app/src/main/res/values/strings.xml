@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">sign</string>
+    <string-array name="options">
+        <item>Device App</item>
+        <item>User app</item>
+    </string-array>
+    <string name="title_activity_login__page">5G 360 VR</string>
+    <string name="title_activity_screens">Screens</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+</resources>

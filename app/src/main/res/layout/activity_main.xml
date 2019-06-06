@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:background="@drawable/mobile_bg"
+>
+    <ImageView
+            android:layout_width="250dp"
+            android:layout_height="200dp"
+            android:layout_centerInParent="true"
+            android:src="@drawable/logo"
+            android:id="@+id/logo"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="50dp"/>
+    <TextView
+            android:id="@+id/sign"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:text="Sign In As "
+            android:textSize="20sp"
+            android:layout_alignParentLeft="true"
+            android:layout_above="@+id/slider"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="45dp"
+    />
+    <EditText
+            android:id="@+id/slider"
+            android:layout_width="360dp"
+            android:layout_height="wrap_content"
+            android:hint="Select"
+            android:layout_marginLeft="8dp"
+            android:layout_centerVertical="true"
+            android:cursorVisible="false"
+            android:inputType="none"/>
+
+    <ImageButton
+            android:layout_width="0.2dp"
+            android:layout_height="8dp"
+            android:id="@+id/arrow"
+            android:background="@drawable/arrow_down"
+            android:layout_alignParentRight="true"
+            android:layout_centerInParent="true"
+            android:layout_toRightOf="@id/slider"
+            android:layout_marginRight="2dp"/>
+
+    <ListView
+            android:layout_width="360dp"
+            android:id="@+id/list_item"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/slider"
+            android:visibility="invisible"></ListView>
+
+    <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/go"
+            android:text="GO"
+            android:layout_centerInParent="true"
+            android:layout_marginTop="85dp"
+            android:layout_below="@+id/slider"
+    />
+
+    <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/sign_up"
+            android:text="Sign up"
+            android:layout_below="@+id/go"
+            android:textColor="#ffffff"
+            android:background="@color/colorAccent"
+            android:layout_centerInParent="true"/>
+
+</RelativeLayout>

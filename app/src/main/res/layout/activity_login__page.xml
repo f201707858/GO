@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:background="@drawable/mobile_bg2"
+        android:id="@+id/mainLayout">
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sign In"
+            android:textColor="#ffffff"
+            android:layout_alignParentTop="true"
+            android:layout_centerInParent="true"
+            android:layout_marginTop="142dp"
+            android:textSize="30sp" android:layout_centerVertical="true"/>
+
+    <RelativeLayout
+            android:layout_centerInParent='true'
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+    >
+
+        <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textEmailAddress"
+                android:hint="Email"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:id='@+id/email'
+                android:textColorHint="#ffffff"
+                android:drawableRight="@drawable/user_icon"
+        />
+
+
+        <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"
+                android:layout_below="@id/email"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:hint="Password"
+                android:layout_marginTop="18dp"
+                android:id='@+id/password'
+                android:textColorHint="#ffffff"
+                android:drawableRight="@drawable/eye_icon"
+
+        />
+
+        <Button
+                android:id="@+id/btn_login"
+                android:background="@drawable/button_border"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="GO"
+                android:textColorHint="#ffffff"
+                android:layout_centerInParent="true"
+                android:layout_below="@id/password"
+                android:layout_marginTop="80dp"
+                android:textStyle="bold"/>
+
+
+    </RelativeLayout>
+</RelativeLayout>
