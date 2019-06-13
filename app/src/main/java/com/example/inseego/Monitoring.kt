@@ -3,15 +3,17 @@ package com.example.inseego
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
 import android.support.v7.app.AppCompatActivity
-import android.view.Gravity
+import android.util.Log
 import android.view.Menu
-import android.view.ViewGroup
-import android.view.WindowManager
 import android.widget.GridView
-import android.widget.RelativeLayout
 import android.widget.TextView
 import com.example.inseego.adapters.Gridview_Adapter
-import kotlinx.android.synthetic.main.activity_screens.*
+import com.loopj.android.http.JsonHttpResponseHandler
+import omdb.Omdb_Values
+import omdb.omdbclient
+import org.json.JSONObject
+import cz.msebera.android.httpclient.Header
+
 
 class Screens : AppCompatActivity() {
 
@@ -36,32 +38,18 @@ class Screens : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_screens)
-        // navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
-        var grid_view = findViewById<GridView>(R.id.grid_view)
-        var gridview_Adapter = Gridview_Adapter(this, screen_list())
-        grid_view?.setAdapter(gridview_Adapter)
+        setContentView(R.layout.monitoring) // navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
 
-
-        setSupportActionBar(toolbar)
-        val actionBar = supportActionBar //In order to use various utility methods for action bar
-        actionBar!!.title = "5G 360 VR"
-
-        /*
-        val tv = TextView(applicationContext)
-        // Create a LayoutParams for TextView
-        val lp = RelativeLayout.LayoutParams(
-            RelativeLayout.LayoutParams.MATCH_PARENT,
-            RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.CENTER_HORIZONTAL
-        )
-        // Apply the layout parameters to TextView widget
-        tv.layoutParams = lp
-        // tv.setTextColor(# ffffff)
-        // Set TextView text alignment to center
-        tv.gravity = Gravity.CENTER*/
         var tv = findViewById<TextView>(R.id.text1)
         var intent = getIntent()
         tv.setText(intent.getStringExtra("message"))
+
+        var grid_view = findViewById<GridView>(R.id.grid_view)
+
+
+        var screen_list: ArrayList<Omdb_Values> = web_service()
+        var gridview_Adapter = Gridview_Adapter(this, screen_list)
+        grid_view?.setAdapter(gridview_Adapter)
 
 
     }
@@ -73,12 +61,34 @@ class Screens : AppCompatActivity() {
         inflater.inflate(R.menu.screens_menu, menu)
         return super.onCreateOptionsMenu(menu)
     }
+
+
+    fun web_service(): ArrayList<Omdb_Values> {
+        var movies = arrayOf("Stree", "Andhadhun","3 idiots","Hate Story","Raaz","paa")
+        var screen_list: ArrayList<Omdb_Values> = ArrayList()
+
+        for (movie in movies) {
+            var client = omdbclient(movie)
+            client.getBoxOfficeMovies(object : JsonHttpResponseHandler() {
+
+                override fun onSuccess(statusCode: Int, headers: Array<out Header>?, response: JSONObject?) {
+                    super.onSuccess(statusCode, headers, response)
+                    screen_list.add(Omdb_Values.fromJson(response!!)!!)
+                    Log.d("E", screen_list[0].title.toString())
+                }
+
+
+            }
+            )
+
+        }
+        return screen_list
+    }
 }
 
-fun screen_list(): ArrayList<String> {
-    var screen_list = ArrayList<String>()
-    for (i in 1..9) {
-        screen_list.add("Camera" + i)
-    }
-    return screen_list
-}
+
+// """""  setSupportActionBar(toolbar)
+// val actionBar = supportActionBar //In order to use various utility methods for action bar
+// actionBar!!.title = "5G 360 VR"  """"""
+
+

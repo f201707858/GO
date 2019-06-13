@@ -11,7 +11,5 @@ class User(user : String,password: String ) {
         this.Password = password
     }
 
-    fun isValidData ():Boolean{
-        return !TextUtils.isEmpty(User) && Patterns.EMAIL_ADDRESS.matcher(User).matches() && Password.length > 6
-    }
+
 }
