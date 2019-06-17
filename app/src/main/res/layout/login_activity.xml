@@ -5,6 +5,7 @@
         android:layout_width="match_parent"
         android:background="@drawable/mobile_bg"
         android:padding="10dp"
+        android:id ="@+id/login_activity"
 >
     <ImageView
             android:layout_width="250dp"
@@ -26,6 +27,7 @@
             android:layout_marginTop="45dp"
             android:layout_marginLeft="22dp"
             android:layout_marginRight="20dp"
+
     />
     <EditText
             android:id="@+id/slider"

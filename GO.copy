@@ -1,0 +1,985 @@
+commit ef7726fe977e57ed9f756ea3659b43be87bfa0bf
+Author: Yamini Jhawar <yaminij@ispace.com>
+Date:   Thu Jun 13 16:00:30 2019 +0530
+
+    First Commit pushing the initial source code
+
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+index 51fa3e5..cc04cd3 100644
+--- a/.idea/misc.xml
++++ b/.idea/misc.xml
+@@ -35,7 +35,7 @@
+       </value>
+     </option>
+   </component>
+-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_7" project-jdk-name="1.8" project-jdk-type="JavaSDK">
++  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+     <output url="file://$PROJECT_DIR$/build/classes" />
+   </component>
+   <component name="ProjectType">
+diff --git a/app/build.gradle b/app/build.gradle
+index 13ca914..3e5d330 100644
+--- a/app/build.gradle
++++ b/app/build.gradle
+@@ -37,4 +37,8 @@ dependencies {
+     testImplementation 'junit:junit:4.12'
+     androidTestImplementation 'com.android.support.test:runner:1.0.2'
+     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
++    //for web services (one is for image loading amd the other is for network requests)
++    implementation 'com.squareup.picasso:picasso:2.5.2'
++    implementation 'com.loopj.android:android-async-http:1.4.9'
++    implementation 'cz.msebera.android:httpclient:4.3.6'
+ }
+diff --git a/app/src/main/AndroidManifest.xml b/app/src/main/AndroidManifest.xml
+index 9e2b706..bde37cb 100644
+--- a/app/src/main/AndroidManifest.xml
++++ b/app/src/main/AndroidManifest.xml
+@@ -1,6 +1,7 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+           package="com.example.inseego">
++    <uses-permission android:name="android.permission.INTERNET" />
+ 
+     <application
+             android:allowBackup="true"
+@@ -8,17 +9,21 @@
+             android:label="@string/app_name"
+             android:roundIcon="@mipmap/ic_launcher_round"
+             android:supportsRtl="true"
+-            android:theme="@style/AppTheme">
++            >
+         <activity
+                 android:name=".Screens"
+-                android:label="5G 360 VR">
++                android:label="5G 360 VR"
++                android:theme="@style/AppTheme">
+         </activity>
+         <activity
+                 android:name=".Login_Page"
+                 android:label="5G 360 VR"
+-                android:theme="@style/AppTheme.NoActionBar">
++                android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+         </activity>
+-        <activity android:name=".MainActivity">
++        <activity android:name=".MainActivity"
++
++                  android:theme="@style/Theme.AppCompat.Light.NoActionBar"
++        >
+             <intent-filter>
+                 <action android:name="android.intent.action.MAIN"/>
+                 <category android:name="android.intent.category.LAUNCHER"/>
+diff --git a/app/src/main/java/com/example/inseego/DeviceLogin.kt b/app/src/main/java/com/example/inseego/DeviceLogin.kt
+new file mode 100644
+index 0000000..88401c3
+--- /dev/null
++++ b/app/src/main/java/com/example/inseego/DeviceLogin.kt
+@@ -0,0 +1,98 @@
++package com.example.inseego
++
++import Model_login.User
++import android.content.Context
++import android.content.Intent
++import android.graphics.Color
++import android.graphics.drawable.Drawable
++import android.os.Build
++import android.os.Bundle
++import android.support.annotation.RequiresApi
++import android.support.v4.graphics.drawable.DrawableCompat
++import android.support.v7.app.AppCompatActivity;
++import android.widget.Button
++import android.widget.EditText
++import android.widget.Toast
++
++import android.text.TextUtils
++import android.util.Log
++import android.view.inputmethod.InputMethodManager
++import android.widget.RelativeLayout
++import android.view.MotionEvent
++import android.view.View
++import android.view.View.OnTouchListener
++
++
++class Login_Page : AppCompatActivity() {
++
++    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
++    override fun onCreate(savedInstanceState: Bundle?) {
++        super.onCreate(savedInstanceState)
++        setContentView(R.layout.device_login)
++
++        var Email = findViewById<EditText>(R.id.email)
++        var Password = findViewById<EditText>(R.id.password)
++        var gotta = findViewById<Button>(R.id.btn_login)
++        var user = User(Email.getText().toString(), Password.getText().toString())
++        var d = Password.getText().toString()
++
++
++        var mainLayout = findViewById<RelativeLayout>(R.id.mainLayout)
++
++        var email_draw: Drawable = getResources().getDrawable(R.drawable.user_icon)
++        email_draw.setBounds(0, 0, 20, 20)
++        DrawableCompat.setTint(email_draw, Color.WHITE)
++        Email.setCompoundDrawablesWithIntrinsicBounds(null, null, email_draw, null)
++
++        var pass_draw: Drawable = getResources().getDrawable(R.drawable.eye_icon)
++        pass_draw.setBounds(10, 10, 20, 20)
++        pass_draw = DrawableCompat.wrap(pass_draw);
++        DrawableCompat.setTint(pass_draw, Color.WHITE)
++        Password.setCompoundDrawablesWithIntrinsicBounds(null, null, pass_draw, null)
++
++
++        mainLayout.setOnTouchListener(object : OnTouchListener {
++            override fun onTouch(view: View, ev: MotionEvent): Boolean {
++                val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
++                imm.hideSoftInputFromWindow(mainLayout.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS)
++                return false
++            }
++        })
++
++
++        gotta.setShowSoftInputOnFocus(false)
++
++
++        gotta.setOnClickListener({
++
++
++            if (TextUtils.isEmpty(Email.text.toString())) {
++                Toast.makeText(this, "User should not be empty", Toast.LENGTH_SHORT).show()
++                return@setOnClickListener
++            }
++
++            if (TextUtils.isEmpty(Password.text.toString())) {
++                if (TextUtils.isEmpty(Password.text.toString())) {
++                    Toast.makeText(this, "Password should not be empty", Toast.LENGTH_SHORT).show()
++                    return@setOnClickListener
++                } else {
++                    Toast.makeText(this, "Password length should be greater than 6", Toast.LENGTH_SHORT).show()
++                    return@setOnClickListener
++                }
++            }
++
++            val intent = Intent(this@Login_Page, Screens::class.java)
++            intent.putExtra("message", "Welcome " + Email.getText().toString())
++            startActivity(intent)
++
++
++        })
++
++
++    }
++    override fun onBackPressed() {
++        super.onBackPressed()
++        startActivity(Intent(this@Login_Page,MainActivity::class.java))
++    }
++}
++
+diff --git a/app/src/main/java/com/example/inseego/LoginActivity.kt b/app/src/main/java/com/example/inseego/LoginActivity.kt
+new file mode 100644
+index 0000000..ccc6c10
+--- /dev/null
++++ b/app/src/main/java/com/example/inseego/LoginActivity.kt
+@@ -0,0 +1,91 @@
++package com.example.inseego
++
++import android.content.Intent
++import android.os.Build
++import android.support.v7.app.AppCompatActivity
++import android.os.Bundle
++import android.support.annotation.RequiresApi
++import android.view.View
++import android.widget.*
++
++class MainActivity : AppCompatActivity() {
++    var click: Int = 0
++    var down: Boolean = true
++    var list: Array<String> = arrayOf("Device App", "User App")
++
++    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
++    override fun onCreate(savedInstanceState: Bundle?) {
++
++
++        super.onCreate(savedInstanceState)
++        setContentView(R.layout.login_activity)
++        //var Arrow = findViewById<ImageButton>(R.id.arrow)
++        var Go = findViewById<Button>(R.id.go)
++        // var Sign = findViewById<Button>(R.id.sign_up)
++        var List_Item = findViewById<ListView>(R.id.list_item)
++        val list_adapter = ArrayAdapter(this, R.layout.login_list_item, list)
++        val edit_text = findViewById<EditText>(R.id.slider)
++
++        List_Item.setAdapter(list_adapter)
++        //function can also be given as an expression
++        List_Item.onItemClickListener =
++            object : AdapterView.OnItemClickListener {
++                override fun onItemClick(
++                    parent: AdapterView<*>, view: View,
++                    position: Int, id: Long
++                ) {
++                    if (position == 0  ) {
++                        List_Item.visibility = View.INVISIBLE
++                        edit_text.setText(list[position])
++                        edit_text.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.arrow_down, 0)
++                        down=true
++                        Go.setOnClickListener({
++                            var intent1 = Intent(this@MainActivity, Login_Page::class.java)
++                            startActivity(intent1)
++
++
++                        }
++                        )
++                    }
++                }
++            }
++
++
++        edit_text.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.arrow_down, 0)
++        edit_text.setOnClickListener({
++            if (down) {
++                List_Item.visibility = View.VISIBLE
++                edit_text.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.arrow_up, 0)
++                down = false
++            } else {
++                List_Item.visibility = View.INVISIBLE
++                edit_text.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.arrow_down, 0)
++                down = true
++            }
++
++
++        })
++        edit_text.setShowSoftInputOnFocus(false)
++
++
++
++    }
++}
++
++
++/*     Arrow.setOnClickListener(
++     {
++         if (down) {
++             List_Item.visibility = View.VISIBLE
++             Arrow.setBackgroundResource(R.drawable.arrow_up)
++             down = false
++         } else {
++             List_Item.visibility = View.INVISIBLE
++             Arrow.setBackgroundResource(R.drawable.arrow_down)
++             down = true
++         }
++     })
++
++
++ }
++}*/
+\ No newline at end of file
+diff --git a/app/src/main/java/com/example/inseego/Login_Page.kt b/app/src/main/java/com/example/inseego/Login_Page.kt
+deleted file mode 100644
+index 4f0dc2d..0000000
+--- a/app/src/main/java/com/example/inseego/Login_Page.kt
++++ /dev/null
+@@ -1,52 +0,0 @@
+-package com.example.inseego
+-
+-import Model_login.User
+-import android.content.Context
+-import android.content.Intent
+-import android.os.Bundle
+-import android.support.design.widget.Snackbar
+-import android.support.v7.app.AppCompatActivity;
+-import android.widget.Button
+-import android.widget.EditText
+-import android.widget.Toast
+-
+-import kotlinx.android.synthetic.main.activity_login__page.*
+-import android.content.Context.INPUT_METHOD_SERVICE
+-import android.support.v4.content.ContextCompat.getSystemService
+-import android.view.inputmethod.InputMethodManager
+-import android.widget.RelativeLayout
+-import android.view.Gravity
+-import android.view.ViewGroup
+-import android.widget.TextView
+-
+-
+-class Login_Page : AppCompatActivity() {
+-
+-    override fun onCreate(savedInstanceState: Bundle?) {
+-        super.onCreate(savedInstanceState)
+-        setContentView(R.layout.activity_login__page)
+-
+-        var Email = findViewById<EditText>(R.id.email)
+-        var Password = findViewById<EditText>(R.id.password)
+-        var gotta = findViewById<Button>(R.id.btn_login)
+-        var user = User(Email.getText().toString(), Password.getText().toString())
+-
+-        //   var mainLayout = findViewById<RelativeLayout>(R.id.mainLayout)
+-        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+-        imm.hideSoftInputFromWindow(Password.getWindowToken(), 0)
+-        gotta.setOnClickListener({
+-            if (user.isValidData()) {
+-                Toast.makeText(this, "LOGIN_SUCCESS", Toast.LENGTH_SHORT).show()
+-
+-            } else {
+-                print(user.Password.length)
+-                Toast.makeText(this, "LOGIN_FAILED", Toast.LENGTH_SHORT).show()
+-                val intent = Intent(this@Login_Page, Screens::class.java)
+-                intent.putExtra("message", Email.getText().toString())
+-                startActivity(intent)
+-            }
+-        })
+-    }
+-}
+-
+-
+diff --git a/app/src/main/java/com/example/inseego/MainActivity.kt b/app/src/main/java/com/example/inseego/MainActivity.kt
+deleted file mode 100644
+index 5b314d9..0000000
+--- a/app/src/main/java/com/example/inseego/MainActivity.kt
++++ /dev/null
+@@ -1,55 +0,0 @@
+-package com.example.inseego
+-
+-import android.content.Intent
+-import android.support.v7.app.AppCompatActivity
+-import android.os.Bundle
+-import android.view.View
+-import android.widget.*
+-
+-class MainActivity : AppCompatActivity() {
+-    var click:Int = 0
+-    var down: Boolean = true
+-    var list: Array<String> = arrayOf("Device App", "User App")
+-
+-    override fun onCreate(savedInstanceState: Bundle?) {
+-
+-
+-        super.onCreate(savedInstanceState)
+-        setContentView(R.layout.activity_main)
+-        var Arrow = findViewById<ImageButton>(R.id.arrow)
+-        var Go = findViewById<Button>(R.id.go)
+-        var Sign = findViewById<Button>(R.id.sign_up)
+-        var List_Item = findViewById<ListView>(R.id.list_item)
+-        val list_adapter = ArrayAdapter(this, R.layout.list_item_view, list)
+-        Go.setOnClickListener({})
+-        List_Item.setAdapter(list_adapter)
+-        List_Item.onItemClickListener = object : AdapterView.OnItemClickListener {
+-
+-            override fun onItemClick(
+-                parent: AdapterView<*>, view: View,
+-                position: Int, id: Long
+-            ) {
+-                if (position == 0) {
+-                   // if (view.id ==  R.id.go ) {
+-                        var intent1 = Intent(this@MainActivity,Login_Page::class.java)
+-                        startActivity(intent1)
+-
+-                }
+-
+-            }
+-        }
+-        Arrow.setOnClickListener({
+-            if (down) {
+-                List_Item.visibility = View.VISIBLE
+-                Arrow.setBackgroundResource(R.drawable.arrow_up)
+-                down = false
+-            } else {
+-                List_Item.visibility = View.INVISIBLE
+-                Arrow.setBackgroundResource(R.drawable.arrow_down)
+-                down = true
+-            }
+-        })
+-
+-
+-    }
+-}
+\ No newline at end of file
+diff --git a/app/src/main/java/com/example/inseego/Screens.kt b/app/src/main/java/com/example/inseego/Monitoring.kt
+similarity index 56%
+rename from app/src/main/java/com/example/inseego/Screens.kt
+rename to app/src/main/java/com/example/inseego/Monitoring.kt
+index 46bdd5c..aa9eab7 100644
+--- a/app/src/main/java/com/example/inseego/Screens.kt
++++ b/app/src/main/java/com/example/inseego/Monitoring.kt
+@@ -3,15 +3,17 @@ package com.example.inseego
+ import android.os.Bundle
+ import android.support.design.widget.BottomNavigationView
+ import android.support.v7.app.AppCompatActivity
+-import android.view.Gravity
++import android.util.Log
+ import android.view.Menu
+-import android.view.ViewGroup
+-import android.view.WindowManager
+ import android.widget.GridView
+-import android.widget.RelativeLayout
+ import android.widget.TextView
+ import com.example.inseego.adapters.Gridview_Adapter
+-import kotlinx.android.synthetic.main.activity_screens.*
++import com.loopj.android.http.JsonHttpResponseHandler
++import omdb.Omdb_Values
++import omdb.omdbclient
++import org.json.JSONObject
++import cz.msebera.android.httpclient.Header
++
+ 
+ class Screens : AppCompatActivity() {
+ 
+@@ -36,33 +38,19 @@ class Screens : AppCompatActivity() {
+ 
+     override fun onCreate(savedInstanceState: Bundle?) {
+         super.onCreate(savedInstanceState)
+-        setContentView(R.layout.activity_screens)
+-        // navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
+-        var grid_view = findViewById<GridView>(R.id.grid_view)
+-        var gridview_Adapter = Gridview_Adapter(this, screen_list())
+-        grid_view?.setAdapter(gridview_Adapter)
++        setContentView(R.layout.monitoring) // navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
+ 
+-
+-        setSupportActionBar(toolbar)
+-        val actionBar = supportActionBar //In order to use various utility methods for action bar
+-        actionBar!!.title = "5G 360 VR"
+-
+-        /*
+-        val tv = TextView(applicationContext)
+-        // Create a LayoutParams for TextView
+-        val lp = RelativeLayout.LayoutParams(
+-            RelativeLayout.LayoutParams.MATCH_PARENT,
+-            RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.CENTER_HORIZONTAL
+-        )
+-        // Apply the layout parameters to TextView widget
+-        tv.layoutParams = lp
+-        // tv.setTextColor(# ffffff)
+-        // Set TextView text alignment to center
+-        tv.gravity = Gravity.CENTER*/
+         var tv = findViewById<TextView>(R.id.text1)
+         var intent = getIntent()
+         tv.setText(intent.getStringExtra("message"))
+ 
++        var grid_view = findViewById<GridView>(R.id.grid_view)
++
++
++        var screen_list: ArrayList<Omdb_Values> = web_service()
++        var gridview_Adapter = Gridview_Adapter(this, screen_list)
++        grid_view?.setAdapter(gridview_Adapter)
++
+ 
+     }
+ 
+@@ -73,12 +61,34 @@ class Screens : AppCompatActivity() {
+         inflater.inflate(R.menu.screens_menu, menu)
+         return super.onCreateOptionsMenu(menu)
+     }
+-}
+ 
+-fun screen_list(): ArrayList<String> {
+-    var screen_list = ArrayList<String>()
+-    for (i in 1..9) {
+-        screen_list.add("Camera" + i)
++
++    fun web_service(): ArrayList<Omdb_Values> {
++        var movies = arrayOf("Stree", "Andhadhun","3 idiots","Hate Story","Raaz","paa")
++        var screen_list: ArrayList<Omdb_Values> = ArrayList()
++
++        for (movie in movies) {
++            var client = omdbclient(movie)
++            client.getBoxOfficeMovies(object : JsonHttpResponseHandler() {
++
++                override fun onSuccess(statusCode: Int, headers: Array<out Header>?, response: JSONObject?) {
++                    super.onSuccess(statusCode, headers, response)
++                    screen_list.add(Omdb_Values.fromJson(response!!)!!)
++                    Log.d("E", screen_list[0].title.toString())
++                }
++
++
++            }
++            )
++
++        }
++        return screen_list
+     }
+-    return screen_list
+ }
++
++
++// """""  setSupportActionBar(toolbar)
++// val actionBar = supportActionBar //In order to use various utility methods for action bar
++// actionBar!!.title = "5G 360 VR"  """"""
++
++
+diff --git a/app/src/main/java/com/example/inseego/adapters/gridview_adapter.kt b/app/src/main/java/com/example/inseego/adapters/gridview_adapter.kt
+index 3d41001..23aec0c 100644
+--- a/app/src/main/java/com/example/inseego/adapters/gridview_adapter.kt
++++ b/app/src/main/java/com/example/inseego/adapters/gridview_adapter.kt
+@@ -3,34 +3,35 @@ package com.example.inseego.adapters
+ import android.content.Context
+ import android.view.View
+ import android.view.ViewGroup
+-import android.widget.Adapter
+-import android.widget.BaseAdapter
+-import android.widget.Button
+-import android.widget.GridView
+ import com.example.inseego.R
+-import com.example.inseego.Screens
+-import kotlinx.android.synthetic.main.gridview_item.view.*
+ 
+-import android.widget.TextView
+ import android.app.Activity
+-import android.view.LayoutInflater
++import android.widget.*
++import com.squareup.picasso.Picasso
++import omdb.Omdb_Values
+ 
+ 
+-class Gridview_Adapter(var context: Context, var screen_list: ArrayList<String>) : BaseAdapter() {
++class Gridview_Adapter(var context: Context, var screen_list: ArrayList< Omdb_Values>) : BaseAdapter() {
++
+     override fun getView(position: Int, convertview: View?, parent: ViewGroup?): View? {
++        var omdb2 : Omdb_Values = getItem(position)
+         var sView:View? = convertview
+         val inflater = (context as Activity).layoutInflater
+-        sView = inflater.inflate(R.layout.gridview_item, parent, false)
+-        val tView = sView?.findViewById<Button>(R.id.cam_btn)
+-        tView?.setText(screen_list.get(position))
++        sView = inflater.inflate(R.layout.monitoring_item, parent, false)
++
++        val tView = sView?.findViewById<TextView>(R.id.title)
++        tView?.setText(omdb2.get_title())
++        tView?.minimumHeight = 50
++
++        val pView = sView?.findViewById<ImageView>(R.id.poster)
++        Picasso.with(context).load(omdb2.get_PosterUrl()).into(pView)
++        pView?.minimumHeight = 250
+ 
+ 
+-        tView?.minimumHeight = 250
+-        //view.minimumWidth
+         return sView
+     }
+ 
+-    override fun getItem(position: Int): Any {
++    override fun getItem(position: Int): Omdb_Values {
+         return screen_list.get(position)
+ 
+     }
+diff --git a/app/src/main/java/login/Model_login/User.kt b/app/src/main/java/login/Model_login/User.kt
+index cded034..59f5d36 100644
+--- a/app/src/main/java/login/Model_login/User.kt
++++ b/app/src/main/java/login/Model_login/User.kt
+@@ -11,7 +11,5 @@ class User(user : String,password: String ) {
+         this.Password = password
+     }
+ 
+-    fun isValidData ():Boolean{
+-        return !TextUtils.isEmpty(User) && Patterns.EMAIL_ADDRESS.matcher(User).matches() && Password.length > 6
+-    }
++
+ }
+\ No newline at end of file
+diff --git a/app/src/main/java/omdb/Omdb_Values.kt b/app/src/main/java/omdb/Omdb_Values.kt
+new file mode 100644
+index 0000000..9844f99
+--- /dev/null
++++ b/app/src/main/java/omdb/Omdb_Values.kt
+@@ -0,0 +1,35 @@
++package omdb
++
++import org.json.JSONException
++import org.json.JSONObject
++import org.json.JSONArray
++
++
++class Omdb_Values {
++    var title: String? = null
++    var posterUrl: String? = null
++
++    companion object {
++        fun fromJson(jsonObject: JSONObject): Omdb_Values? {
++            var omdb = Omdb_Values()
++            try {
++                omdb.title = jsonObject.getString("Title")
++                omdb.posterUrl = jsonObject.getString("Poster")
++
++            } catch (e: JSONException) {
++                e.printStackTrace()
++                return null
++            }
++            return omdb
++        }
++    }
++
++
++    fun get_title(): String? {
++        return title
++    }
++
++    fun get_PosterUrl(): String? {
++        return posterUrl
++    }
++}
+\ No newline at end of file
+diff --git a/app/src/main/java/omdb/omdbclient.kt b/app/src/main/java/omdb/omdbclient.kt
+new file mode 100644
+index 0000000..e160d7e
+--- /dev/null
++++ b/app/src/main/java/omdb/omdbclient.kt
+@@ -0,0 +1,33 @@
++package omdb
++
++import android.util.Log
++import com.loopj.android.http.AsyncHttpClient
++import com.loopj.android.http.JsonHttpResponseHandler
++import com.loopj.android.http.RequestParams
++
++
++class omdbclient(relative_url: String) {
++    var Relative_Url = relative_url
++    private val API_KEY = "15c7fb28"
++    private val API_BASE_URL = "http://www.omdbapi.com/"
++    private val client: AsyncHttpClient
++
++    init {
++        this.client = AsyncHttpClient()
++    }
++
++    private fun getApiUrl(relativeUrl: String): String {
++        return API_BASE_URL + "?t=" + relativeUrl + "&"
++
++    }
++
++    fun getBoxOfficeMovies(handler: JsonHttpResponseHandler) {
++        val url = getApiUrl(Relative_Url)
++        val params = RequestParams("apikey", API_KEY)
++        Log.d("A", (url + params).toString())
++        client.get(url, params, handler)
++
++
++    }
++
++}
+\ No newline at end of file
+diff --git a/app/src/main/res/drawable/button_border.xml b/app/src/main/res/drawable/monitering_item_border.xml
+similarity index 83%
+rename from app/src/main/res/drawable/button_border.xml
+rename to app/src/main/res/drawable/monitering_item_border.xml
+index 56f94e9..378242e 100644
+--- a/app/src/main/res/drawable/button_border.xml
++++ b/app/src/main/res/drawable/monitering_item_border.xml
+@@ -6,6 +6,6 @@
+ 
+     <stroke
+             android:width="3dp"
+-            android:color="#FFFFFF" />
++            android:color="#ffffff" />
+ 
+ </shape>
+\ No newline at end of file
+diff --git a/app/src/main/res/layout/activity_login__page.xml b/app/src/main/res/layout/device_login.xml
+similarity index 76%
+rename from app/src/main/res/layout/activity_login__page.xml
+rename to app/src/main/res/layout/device_login.xml
+index 2dc41a2..2da2051 100644
+--- a/app/src/main/res/layout/activity_login__page.xml
++++ b/app/src/main/res/layout/device_login.xml
+@@ -11,11 +11,13 @@
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:text="Sign In"
++            android:layout_marginLeft="8dp"
+             android:textColor="#ffffff"
+             android:layout_alignParentTop="true"
+             android:layout_centerInParent="true"
+-            android:layout_marginTop="142dp"
+-            android:textSize="30sp" android:layout_centerVertical="true"/>
++            android:layout_marginTop="130dp"
++            android:textSize="30sp"
++            android:layout_centerVertical="true"/>
+ 
+     <RelativeLayout
+             android:layout_centerInParent='true'
+@@ -33,7 +35,8 @@
+                 android:layout_marginRight="20dp"
+                 android:id='@+id/email'
+                 android:textColorHint="#ffffff"
+-                android:drawableRight="@drawable/user_icon"
++                android:backgroundTint="#ffffff"
++                android:textColor="#ffffff"
+         />
+ 
+ 
+@@ -48,21 +51,27 @@
+                 android:layout_marginTop="18dp"
+                 android:id='@+id/password'
+                 android:textColorHint="#ffffff"
+-                android:drawableRight="@drawable/eye_icon"
++                android:textColor="#ffffff"
++                android:backgroundTint="#ffffff"
++                android:imeOptions="actionDone"
++
++
+ 
+         />
+ 
+         <Button
+                 android:id="@+id/btn_login"
+-                android:background="@drawable/button_border"
+-                android:layout_width="wrap_content"
++                android:background="@drawable/monitering_item_border"
++                android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:hint="GO"
+                 android:textColorHint="#ffffff"
+                 android:layout_centerInParent="true"
+                 android:layout_below="@id/password"
+                 android:layout_marginTop="80dp"
+-                android:textStyle="bold"/>
++                android:textStyle="bold"
++                android:layout_marginLeft="20dp"
++                android:layout_marginRight="20dp"/>
+ 
+ 
+     </RelativeLayout>
+diff --git a/app/src/main/res/layout/gridview_item.xml b/app/src/main/res/layout/gridview_item.xml
+deleted file mode 100644
+index dd81ee0..0000000
+--- a/app/src/main/res/layout/gridview_item.xml
++++ /dev/null
+@@ -1,13 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<Button
+-
+-        xmlns:android="http://schemas.android.com/apk/res/android"
+-        android:layout_height="100dp"
+-        android:layout_width="match_parent"
+-        android:id="@+id/cam_btn"
+-        android:gravity="center"
+-        android:background="@drawable/border_screen"
+-        android:textColor="#000000"
+-        android:text="CAMERA"
+->
+-</Button>
+\ No newline at end of file
+diff --git a/app/src/main/res/layout/activity_main.xml b/app/src/main/res/layout/login_activity.xml
+similarity index 60%
+rename from app/src/main/res/layout/activity_main.xml
+rename to app/src/main/res/layout/login_activity.xml
+index 9b0ab4d..c149f02 100644
+--- a/app/src/main/res/layout/activity_main.xml
++++ b/app/src/main/res/layout/login_activity.xml
+@@ -1,9 +1,10 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <RelativeLayout
+         xmlns:android="http://schemas.android.com/apk/res/android"
+-        android:layout_height="match_parent"
++        xmlns:tools="http://schemas.android.com/tools" android:layout_height="match_parent"
+         android:layout_width="match_parent"
+         android:background="@drawable/mobile_bg"
++        android:padding="10dp"
+ >
+     <ImageView
+             android:layout_width="250dp"
+@@ -15,61 +16,67 @@
+             android:layout_marginTop="50dp"/>
+     <TextView
+             android:id="@+id/sign"
+-            android:layout_width="wrap_content"
++            android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:textStyle="bold"
+             android:text="Sign In As "
+             android:textSize="20sp"
+             android:layout_alignParentLeft="true"
+             android:layout_above="@+id/slider"
+-            android:layout_marginLeft="8dp"
+             android:layout_marginTop="45dp"
++            android:layout_marginLeft="22dp"
++            android:layout_marginRight="20dp"
+     />
+     <EditText
+             android:id="@+id/slider"
+-            android:layout_width="360dp"
++            android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:hint="Select"
+-            android:layout_marginLeft="8dp"
+             android:layout_centerVertical="true"
+             android:cursorVisible="false"
+-            android:inputType="none"/>
++            android:layout_marginLeft="20dp"
++            android:layout_marginRight="20dp"
++            android:inputType="none"
++            android:textStyle="bold"
++            android:textColor="@color/colorPrimary"
++
++           />
+ 
+-    <ImageButton
+-            android:layout_width="0.2dp"
+-            android:layout_height="8dp"
+-            android:id="@+id/arrow"
+-            android:background="@drawable/arrow_down"
+-            android:layout_alignParentRight="true"
+-            android:layout_centerInParent="true"
+-            android:layout_toRightOf="@id/slider"
+-            android:layout_marginRight="2dp"/>
+ 
+     <ListView
+-            android:layout_width="360dp"
++            android:layout_width="match_parent"
+             android:id="@+id/list_item"
+             android:layout_height="wrap_content"
+             android:layout_below="@id/slider"
+-            android:visibility="invisible"></ListView>
++            android:layout_marginLeft="20dp"
++            android:layout_marginRight="20dp"
++            android:visibility="invisible">
++    </ListView>
+ 
+     <Button
+-            android:layout_width="wrap_content"
++            android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:id="@+id/go"
+             android:text="GO"
++            android:layout_marginLeft="20dp"
++            android:layout_marginRight="20dp"
+             android:layout_centerInParent="true"
+-            android:layout_marginTop="85dp"
++            android:layout_marginTop="100dp"
+             android:layout_below="@+id/slider"
++            android:background="@color/colorAccent"
++
+     />
+ 
+     <Button
+-            android:layout_width="wrap_content"
++            android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:id="@+id/sign_up"
+             android:text="Sign up"
+             android:layout_below="@+id/go"
+-            android:textColor="#ffffff"
+-            android:background="@color/colorAccent"
+-            android:layout_centerInParent="true"/>
++            android:layout_centerInParent="true"
++            android:layout_marginLeft="20dp"
++            android:layout_marginRight="20dp"
++            android:layout_marginTop="10dp"
++            android:background="@color/colorAccent"/>
+ 
+ </RelativeLayout>
+diff --git a/app/src/main/res/layout/list_item_view.xml b/app/src/main/res/layout/login_list_item.xml
+similarity index 100%
+rename from app/src/main/res/layout/list_item_view.xml
+rename to app/src/main/res/layout/login_list_item.xml
+diff --git a/app/src/main/res/layout/activity_screens.xml b/app/src/main/res/layout/monitoring.xml
+similarity index 83%
+rename from app/src/main/res/layout/activity_screens.xml
+rename to app/src/main/res/layout/monitoring.xml
+index 68e029f..2cf36cb 100644
+--- a/app/src/main/res/layout/activity_screens.xml
++++ b/app/src/main/res/layout/monitoring.xml
+@@ -4,34 +4,36 @@
+         xmlns:app="http://schemas.android.com/apk/res-auto"
+         android:layout_width="match_parent"
+         android:layout_height="match_parent" android:background="#ffffff">
+-    <android.support.v7.widget.Toolbar android:layout_width="match_parent"
++        <android.support.v7.widget.Toolbar android:layout_width="match_parent"
+                                        android:layout_height="match_parent"
+                                        android:id="@+id/toolbar"
+                                        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+-    />
++        />
++
++
+     <TextView
+-            android:id="@+id/text1"
++            android:id="@+id/text2"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+-            android:layout_marginTop="70dp"
+-            android:textSize="25sp"
++            android:layout_marginTop="81dp"
++            android:text="Select Camera To connect"
++            android:textSize="20sp"
+             android:maxLines='1'
+             android:layout_alignParentTop="true"
+-            android:textColor="@android:color/secondary_text_dark_nodisable"
++            android:textColor="@android:color/background_dark"
+             android:layout_centerHorizontal="true"
+     />
+-
+     <TextView
+-            android:id="@+id/text2"
++            android:id="@+id/text1"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+-            android:layout_marginTop="81dp"
+-            android:text="Select Camera To connect"
+             android:textSize="25sp"
+             android:maxLines='1'
+-            android:layout_alignParentTop="true"
+-            android:textColor="@android:color/secondary_text_dark_nodisable"
++            android:textColor="@android:color/holo_blue_bright"
+             android:layout_centerHorizontal="true"
++            android:textStyle="bold"
++            android:layout_marginTop="40dp"
++
+     />
+ 
+ 
+@@ -45,9 +47,9 @@
+               android:numColumns="3"
+               android:horizontalSpacing="2dp"
+               android:stretchMode="columnWidth"
+-              android:layout_marginTop="15dp"
++              android:layout_marginTop="25dp"
++              android:verticalSpacing="0dp"
+     >
+-
+     </GridView>
+ 
+     <android.support.design.widget.BottomNavigationView
+diff --git a/app/src/main/res/layout/monitoring_item.xml b/app/src/main/res/layout/monitoring_item.xml
+new file mode 100644
+index 0000000..c385431
+--- /dev/null
++++ b/app/src/main/res/layout/monitoring_item.xml
+@@ -0,0 +1,24 @@
++<?xml version="1.0" encoding="utf-8"?>
++<LinearLayout
++        xmlns:android="http://schemas.android.com/apk/res/android"
++        android:layout_height="250dp"
++        android:orientation="vertical"
++        android:layout_width="match_parent">
++
++    <TextView
++            xmlns:android="http://schemas.android.com/apk/res/android"
++            android:maxLines="1"
++            android:layout_height="wrap_content"
++            android:layout_width="match_parent"
++            android:id="@+id/title"
++            android:gravity="center"
++            android:textColor="#000000"
++            android:textSize="20sp"
++
++    />
++    <ImageView
++            android:layout_width="match_parent"
++            android:layout_height="250dp"
++            android:id ="@+id/poster"
++    />
++</LinearLayout>
+diff --git a/app/src/main/res/values/styles.xml b/app/src/main/res/values/styles.xml
+index 2b6587b..343f180 100644
+--- a/app/src/main/res/values/styles.xml
++++ b/app/src/main/res/values/styles.xml
+@@ -7,10 +7,8 @@
+         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+         <item name="colorAccent">@color/colorAccent</item>
+     </style>
+-    <style name="AppTheme.NoActionBar">
+-        <item name="windowActionBar">false</item>
+-        <item name="windowNoTitle">true</item>
+-    </style>
++    <style name="AppBaseTheme" parent="Theme.AppCompat.Light.NoActionBar"/>
++
+     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
+     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
+ 

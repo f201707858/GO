@@ -1,5 +1,6 @@
 package com.example.inseego
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Build
 import android.support.v7.app.AppCompatActivity
@@ -7,12 +8,18 @@ import android.os.Bundle
 import android.support.annotation.RequiresApi
 import android.view.View
 import android.widget.*
+import android.widget.RelativeLayout
+import android.view.ViewTreeObserver
+
+
 
 class MainActivity : AppCompatActivity() {
     var click: Int = 0
     var down: Boolean = true
     var list: Array<String> = arrayOf("Device App", "User App")
 
+  //  @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    @SuppressLint("ResourceType")
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -25,6 +32,20 @@ class MainActivity : AppCompatActivity() {
         var List_Item = findViewById<ListView>(R.id.list_item)
         val list_adapter = ArrayAdapter(this, R.layout.login_list_item, list)
         val edit_text = findViewById<EditText>(R.id.slider)
+
+
+     val relativeLayoutSameDay = findViewById<RelativeLayout>(R.layout.login_activity)
+      /*val viewTreeObserver = relativeLayoutSameDay.getViewTreeObserver()
+      viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+          override fun onGlobalLayout() {
+              relativeLayoutSameDay.getViewTreeObserver().removeOnGlobalLayoutListener(this)
+              val height = relativeLayoutSameDay.getMeasuredHeight()
+              val head_params = relativeLayoutSameDay.getLayoutParams() as RelativeLayout.LayoutParams
+              var ARG_ASPECT_RATIO = height * 200
+              head_params.setMargins(0, 0, 0, (height * ARG_ASPECT_RATIO) as Int)
+              relativeLayoutSameDay .setLayoutParams(head_params)
+          }
+      })*/
 
         List_Item.setAdapter(list_adapter)
         //function can also be given as an expression
@@ -72,20 +93,3 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
-
-/*     Arrow.setOnClickListener(
-     {
-         if (down) {
-             List_Item.visibility = View.VISIBLE
-             Arrow.setBackgroundResource(R.drawable.arrow_up)
-             down = false
-         } else {
-             List_Item.visibility = View.INVISIBLE
-             Arrow.setBackgroundResource(R.drawable.arrow_down)
-             down = true
-         }
-     })
-
-
- }
-}*/

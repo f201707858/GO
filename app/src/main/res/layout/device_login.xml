@@ -17,13 +17,15 @@
             android:layout_centerInParent="true"
             android:layout_marginTop="130dp"
             android:textSize="30sp"
-            android:layout_centerVertical="true"/>
+            android:layout_centerVertical="true"
+            android:layout_above="@id/device_login"/>
 
     <RelativeLayout
             android:layout_centerInParent='true'
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="10dp"
+            android:id="@+id/device_login"
     >
 
         <EditText
@@ -54,7 +56,6 @@
                 android:textColor="#ffffff"
                 android:backgroundTint="#ffffff"
                 android:imeOptions="actionDone"
-
 
 
         />
