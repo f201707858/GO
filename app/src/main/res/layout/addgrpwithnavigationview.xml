@@ -19,33 +19,42 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="start"
-            android:fitsSystemWindows="true">
+            android:fitsSystemWindows="true"
+
+    >
 
         <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:background="#ffffff"
+        >
 
             <RelativeLayout
                     android:id="@+id/top"
                     android:layout_width="match_parent"
-                    android:layout_height="200dp">
+                    android:layout_height="200dp"
+                    >
 
                 <ImageView
                         android:layout_width="match_parent"
                         android:layout_height="200dp"
-                        android:background="@drawable/mobile_bg"/>
+                        android:background="@drawable/mobile_bg2"/>
 
                 <TextView
                         android:layout_alignParentBottom="true"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:layout_toRightOf="@+id/user_image"
                         android:layout_marginBottom="10dp"
                         android:layout_marginLeft="10dp"
+                        android:textColor="#111111"
+                        android:textSize="30sp"
+                        android:id="@+id/userinnav"
+                        android:text="hety"
                 />
                 <ImageView
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
+                        android:layout_width="35dp"
+                        android:layout_height="35dp"
                         android:src="@drawable/user_icon"
                         android:layout_alignParentLeft="true"
                         android:layout_alignParentBottom="true"
@@ -54,7 +63,13 @@
                         android:layout_marginLeft="10dp"/>
             </RelativeLayout>
 
-<ListView android:layout_width="" android:layout_height=""></ListView>
+
+            <ListView android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:id="@+id/nav_list"
+                      android:layout_below="@id/top"
+            >
+            </ListView>
 
 
         </RelativeLayout>

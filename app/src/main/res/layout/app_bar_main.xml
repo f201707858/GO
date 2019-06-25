@@ -19,24 +19,25 @@
 
 
             <android.support.v7.widget.Toolbar
-                    android:id="@+id/toolbar"
+                    android:id="@+id/Tools"
                     android:layout_width="match_parent"
                     android:layout_height="60dp"
-                    android:background="@color/colorAccent"
+                    android:background="#1E90FF"
                     app:popupTheme="@style/AppTheme.PopupOverlay"
-                    android:title ="Authorize Cameras"
-                    android:textColor = "#ffffff"
-                    />
+                    android:title="Authorize Cameras"
+                    android:textColor="#696969"
+            />
 
 
         </android.support.design.widget.AppBarLayout>
 
         <fragment
-                class="com.example.inseego.Fragments.ItemFragment"
+                class="com.example.inseego.Fragments.DeviceFragment"
                 android:id="@+id/fragment_details"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_below="@+id/app_bar"/>
+                android:layout_below="@+id/app_bar"
+                />
 
 
     </RelativeLayout>

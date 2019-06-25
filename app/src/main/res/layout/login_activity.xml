@@ -65,7 +65,7 @@
             android:layout_centerInParent="true"
             android:layout_marginTop="100dp"
             android:layout_below="@+id/slider"
-            android:background="@color/colorAccent"
+            android:background="#1E90FF"
 
     />
 
@@ -79,6 +79,6 @@
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:layout_marginTop="10dp"
-            android:background="@color/colorAccent"/>
+            android:background="#1E90FF"/>
 
 </RelativeLayout>

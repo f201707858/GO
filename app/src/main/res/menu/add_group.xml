@@ -11,9 +11,5 @@
                     android:id="@+id/action_sort_recent"
                     android:title="Logout"/>
         </menu>
-
-
-
-
     </item>
 </menu>

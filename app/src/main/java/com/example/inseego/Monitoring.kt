@@ -76,8 +76,6 @@ class Screens : AppCompatActivity() {
                     screen_list.add(Omdb_Values.fromJson(response!!)!!)
                     Log.d("E", screen_list[0].title.toString())
                 }
-
-
             }
             )
 

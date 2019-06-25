@@ -21,6 +21,7 @@ import android.widget.RelativeLayout
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnTouchListener
+import com.example.inseego.Fragments.DeviceFragment
 
 
 class Login_Page : AppCompatActivity() {
@@ -60,6 +61,7 @@ class Login_Page : AppCompatActivity() {
         })
 
 
+
         gotta.setShowSoftInputOnFocus(false)
 
 
@@ -81,8 +83,8 @@ class Login_Page : AppCompatActivity() {
                 }
             }
 
-            val intent = Intent(this@Login_Page, Screens::class.java)
-            intent.putExtra("message", "Welcome " + Email.getText().toString())
+            val intent = Intent(this@Login_Page, add_group::class.java)
+            intent.putExtra("message",  Email.getText().toString())
             startActivity(intent)
 
 
@@ -90,9 +92,10 @@ class Login_Page : AppCompatActivity() {
 
 
     }
+
     override fun onBackPressed() {
         super.onBackPressed()
-        startActivity(Intent(this@Login_Page,MainActivity::class.java))
+        startActivity(Intent(this@Login_Page, MainActivity::class.java))
     }
 }
 
