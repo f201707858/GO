@@ -11,8 +11,8 @@ class Device_Database(context: Context?) : SQLiteOpenHelper(context, DB_NAME, nu
         var TABLE_NAME = "NewDevicesTable"
         var DB_NAME = "DeviceDatabase.db"
         var COLUMN_DEVICES = "DeviceName"
-        var DB_VERSION =1
- }
+        var DB_VERSION = 1
+    }
 
     var _deviceList = ArrayList<String>()
 
@@ -30,24 +30,28 @@ class Device_Database(context: Context?) : SQLiteOpenHelper(context, DB_NAME, nu
 
     //to store device_name
     fun storeAsGroup(title: String?) {
-        if(!TextUtils.isEmpty(title)){
-        val db = this.writableDatabase
-        val contentValues = ContentValues()
-        contentValues.put(COLUMN_DEVICES, title)
-        db.insert(TABLE_NAME, null, contentValues)
-        db.close()}
+        if (!TextUtils.isEmpty(title)) {
+            val db = this.writableDatabase
+            val contentValues = ContentValues()
+            contentValues.put(COLUMN_DEVICES, title)
+            db.insert(TABLE_NAME, null, contentValues)
+            db.close()
+
+        }
     }
 
 
     //to Query(i.e.,get) device_data
     fun queryDBList(): ArrayList<String>? {
         try {
+            _deviceList.clear()
             val db = this.readableDatabase
             val query_params = "SELECT * FROM " + TABLE_NAME
             var cSor = db.rawQuery(query_params, null)
             if (cSor.moveToFirst()) {
                 do {
                     var device_name: String = cSor.getString(cSor.getColumnIndexOrThrow(COLUMN_DEVICES))
+
                     _deviceList.add(device_name)
                 } while (cSor.moveToNext())
             } else {
@@ -61,31 +65,49 @@ class Device_Database(context: Context?) : SQLiteOpenHelper(context, DB_NAME, nu
 
 
     /* fun check_device(_devicename: String): Boolean {
-         var id: String? = null
-         val db = this.readableDatabase
-         val query_params = "SELECT * FROM " + TABLE_NAME + " WHERE DeviceName  = '$_devicename'"
-         var cSor = db.rawQuery(query_params, null)
-         if (cSor.moveToFirst()) {
-             do {
-                 id = cSor.getString(cSor.getColumnIndexOrThrow(COLUMN_DEVICES))
-             } while (cSor.moveToNext())
-         } else {
-             return false
-         }
-         return id != null
-     }*/
+          var id: String? = null
+          val db = this.readableDatabase
+          val query_params = "SELECT * FROM " + TABLE_NAME + " WHERE DeviceName  = '$_devicename'"
+          var cSor = db.rawQuery(query_params, null)
+          if (cSor.moveToFirst()) {
+              do {
+                  id = cSor.getString(cSor.getColumnIndexOrThrow(COLUMN_DEVICES))
+              } while (cSor.moveToNext())
+          } else {
+              return false
+          }
+          return id != null
+      }*/
 
 
-    fun deleteFavourite(_devicename: String) {
+    fun deleteFavourite(_devicename: String) : Boolean{
+        var result = false
+
+      //  val query =
+            //"SELECT * from " + TABLE_NAME + " WHERE DeviceName  = '$_devicename'"
         val db = this.writableDatabase
-        db.delete(TABLE_NAME, COLUMN_DEVICES + " = " + _devicename, null)
+        /* db.delete(
+             TABLE_NAME, COLUMN_DEVICES + "=" + _devicename,
+             null
+         )*/
+        val cursor = db.rawQuery("SELECT * from " + TABLE_NAME + " where " + COLUMN_DEVICES+" =?", arrayOf(_devicename))
+        if (cursor.moveToFirst()) {
+            val id =cursor.getString(0)
+            db.delete(
+                TABLE_NAME, COLUMN_DEVICES + " =?",
+                arrayOf(id.toString())
+            )
+            cursor.close()
+            result = true
+        }
         db.close()
+        return result
 
     }
 
-    fun deleteall(){
+    fun deleteall() {
         val db = this.writableDatabase
-        db.delete(TABLE_NAME,null,null)
+        db.delete(TABLE_NAME, null, null)
         db.close()
     }
 

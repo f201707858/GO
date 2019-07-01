@@ -10,20 +10,21 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.TextView
 import com.example.inseego.DataBase.Device_Database
 import com.example.inseego.R
 import kotlinx.android.synthetic.main.app_bar_main.*
 import android.R.string.cancel
 import android.content.DialogInterface
 import android.text.InputType
-import android.widget.EditText
 import android.app.AlertDialog
+import android.content.Intent
+import android.graphics.*
 import android.support.design.widget.FloatingActionButton
 import android.support.v7.widget.helper.ItemTouchHelper
 import android.util.Log
-import android.widget.Adapter
+import android.widget.*
+import android.widget.Toast
+import com.example.inseego.Screens
 
 
 class DeviceFragment : Fragment() {
@@ -37,30 +38,9 @@ class DeviceFragment : Fragment() {
     var m_Text: String = ""
     var deviceAdapter: DeviceAdapter? = null
     var DA: DeviceAdapter? = null
-    val myCallback = object : ItemTouchHelper.SimpleCallback(
-        0,
-        ItemTouchHelper.RIGHT
-    ) {
-        override fun onMove(
-            recyclerView: RecyclerView,
-            viewHolder: RecyclerView.ViewHolder,
-            target: RecyclerView.ViewHolder
-        ): Boolean = false
+    private val p = Paint()
 
-        override fun onSwiped(
-            viewHolder: RecyclerView.ViewHolder,
-            direction: Int
-        ) {
-
-            deviceAdapter?.group_list?.removeAt(viewHolder.adapterPosition)
-            deviceAdapter?.notifyItemRemoved(viewHolder.adapterPosition)
-
-        }
-
-
-
-    }
-    var myHelper :ItemTouchHelper? = null
+    //var myHelper: ItemTouchHelper? = null
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -70,7 +50,13 @@ class DeviceFragment : Fragment() {
         noDevices = view?.findViewById(R.id.NoGroups)
         recyclerView = view.findViewById(R.id.recycler_list)
         add_button = view.findViewById(R.id.add)
-        myHelper = ItemTouchHelper(myCallback)
+        var mLayoutManager = LinearLayoutManager(activity)
+        recyclerView?.layoutManager = mLayoutManager
+        recyclerView?.itemAnimator = DefaultItemAnimator()
+        add_button?.setOnClickListener({
+            alert_Dialog("Device Title", "Ok")
+        })
+        initSwipe()
         return view
     }
 
@@ -88,13 +74,8 @@ class DeviceFragment : Fragment() {
         super.onCreate(savedInstanceState)
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        /* DeviceContent?.deleteall()
-          display_devices()*/
-
-
-
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         if (DeviceContent?.checkSize() as Int > 0) {
             getListfromDatabase = DeviceContent?.queryDBList()
             deviceAdapter = DeviceAdapter(getListfromDatabase as ArrayList<String>, myActivity as Context)
@@ -102,116 +83,170 @@ class DeviceFragment : Fragment() {
             recyclerView?.layoutManager = mLayoutManager
             recyclerView?.itemAnimator = DefaultItemAnimator()
             recyclerView?.adapter = deviceAdapter
-
-
         } else {
             recyclerView?.visibility = View.INVISIBLE
             noDevices?.visibility = View.VISIBLE
-
         }
+    }
 
-        //  DA = display_devices()
-        add_button?.setOnClickListener({
-            val builder = AlertDialog.Builder(myActivity)
-            builder.setTitle("Title")
-            val input = EditText(myActivity)
-            builder.setView(input)
-            builder.setPositiveButton("OK",
-                DialogInterface.OnClickListener { dialog, which -> m_Text = input.text.toString() })
-            Log.d("initial", DeviceContent?.checkSize().toString())
-            Log.d("initial list ", DeviceContent?.queryDBList().toString())
 
-            DeviceContent?.storeAsGroup(m_Text)
-            Log.d("final", DeviceContent?.checkSize().toString())
-            Log.d("final list ", DeviceContent?.queryDBList().toString())
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+        getListfromDatabase = DeviceContent?.queryDBList()
+        //recyclerView?.invalidate()
+        if (getListfromDatabase != null) {
             if (deviceAdapter == null) {
-                deviceAdapter = DeviceAdapter(DeviceContent?.queryDBList(), myActivity as Context)
+                deviceAdapter = DeviceAdapter(getListfromDatabase as ArrayList<String>, myActivity as Context)
+                recyclerView?.adapter = deviceAdapter
             } else {
-                deviceAdapter?.swap(DeviceContent?.queryDBList())
+                deviceAdapter?.notifyDataSetChanged()
             }
-            recyclerView?.adapter = deviceAdapter
-            noDevices?.visibility = View.INVISIBLE
-            builder.setNegativeButton("Cancel",
-                DialogInterface.OnClickListener { dialog, which -> dialog.cancel() })
-            builder.show()
+        }
+        recyclerView?.addOnItemTouchListener(
+            RecyclerTouchListener(getContext()!!,
+                recyclerView!!, object : ClickListener {
+                    override
+                    fun onClick(view: View, position: Int) {
+                        var intent = Intent(getActivity(), Screens::class.java)
+                        startActivity(intent)
+                    }
 
-
-            /*   DA?.swap(DeviceContent?.queryDBList())
-               var mLayoutManager = LinearLayoutManager(activity)
-               recyclerView?.layoutManager = mLayoutManager
-               recyclerView?.itemAnimator = DefaultItemAnimator()
-               recyclerView?.adapter = deviceAdapter*/
-            val myHelper = ItemTouchHelper(myCallback)
-            myHelper.attachToRecyclerView(recyclerView)
-
-        })
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                    override
+                    fun onLongClick(view: View, position: Int) {
+                        /*  Toast.makeText(
+                              getActivity() , "Long press on position :" + position,
+                              Toast.LENGTH_LONG
+                          ).show()*/
+                    }
+                })
+        )
     }
 
 
+    fun alert_Dialog(title: String, positive: String): String? {
+        val builder = AlertDialog.Builder(myActivity)
+        builder.setTitle(title)
+        val input = EditText(myActivity)
+        builder.setView(input)
+        builder.setPositiveButton(positive,
+            DialogInterface.OnClickListener { dialog, which ->
+                m_Text = input.text.toString()
+                DeviceContent?.storeAsGroup(m_Text)
+            })
+        builder.setNegativeButton("Cancel",
+            DialogInterface.OnClickListener { dialog, which ->
+                dialog.cancel()
+            })
+        builder.show()
+        return m_Text
+    }
+
+    private fun initSwipe() {
+        val simpleItemTouchCallback =
+            object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+                override fun onMove(
+                    recyclerView: RecyclerView,
+                    viewHolder: RecyclerView.ViewHolder,
+                    target: RecyclerView.ViewHolder
+                ): Boolean {
+                    return false
+                }
+
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                    val position = viewHolder.adapterPosition
+                    if (direction == ItemTouchHelper.LEFT) {
+                        var item = deviceAdapter!!.group_list!!.get(position)
+                        DeviceContent?.deleteFavourite(item)
+                        deviceAdapter!!.removeItem(position)
+
+                    } else {
+                        removeView()
+                        var edit_name: String? = null
+                        edit_name = alert_Dialog("Edit Title", "Save")
+                        if (edit_name != null) {
+                            var item = deviceAdapter!!.group_list!!.get(position)
+                            DeviceContent?.deleteFavourite(item)
+                            DeviceContent?.storeAsGroup(edit_name)
+                            deviceAdapter!!.addItem(edit_name)
+                            //  deviceAdapter?.group_list[position] = edit_name
+                            // deviceAdapter!!.notifyDataSetChanged()
+                            //   (view!!.parent as ViewGroup).addView(view)
+
+                        }
+
+                    }
+                }
 
 
+                override fun onChildDraw(
+                    c: Canvas,
+                    recyclerView: RecyclerView,
+                    viewHolder: RecyclerView.ViewHolder,
+                    dX: Float,
+                    dY: Float,
+                    actionState: Int,
+                    isCurrentlyActive: Boolean
+                ) {
+                    val icon: Bitmap
+                    if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
 
+                        val itemView = viewHolder.itemView
+                        val height = itemView.bottom.toFloat() - itemView.top.toFloat()
+                        val width = height / 3
 
+                        if (dX > 0) {
+                            p.color = Color.parseColor("#87CEFA")
+                            val background =
+                                RectF(itemView.left.toFloat(), itemView.top.toFloat(), dX, itemView.bottom.toFloat())
+                            c.drawRect(background, p)
+                            icon = BitmapFactory.decodeResource(resources, R.drawable.baseline_edit_black_24)
+                            val icon_dest = RectF(
+                                itemView.left.toFloat() + width,
+                                itemView.top.toFloat() + width,
+                                itemView.left.toFloat() + 2 * width,
+                                itemView.bottom.toFloat() - width
+                            )
+                            c.drawBitmap(icon, null, icon_dest, p)
+                        } else {
+                            p.color = Color.parseColor("#87CEFA")
+                            val background = RectF(
+                                itemView.right.toFloat() + dX,
+                                itemView.top.toFloat(),
+                                itemView.right.toFloat(),
+                                itemView.bottom.toFloat()
+                            )
+                            c.drawRect(background, p)
+                            icon = BitmapFactory.decodeResource(resources, R.drawable.baseline_delete_black_24)
+                            val icon_dest = RectF(
+                                itemView.right.toFloat() - 2 * width,
+                                itemView.top.toFloat() + width,
+                                itemView.right.toFloat() - width,
+                                itemView.bottom.toFloat() - width
+                            )
+                            c.drawBitmap(icon, null, icon_dest, p)
+                        }
+                    }
+                    super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+                }
+            }
+        val itemTouchHelper = ItemTouchHelper(simpleItemTouchCallback)
+        itemTouchHelper.attachToRecyclerView(recyclerView)
+    }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    fun display_devices(): DeviceAdapter? {
-        if (DeviceContent?.checkSize() as Int > 0) {
-            noDevices?.visibility = View.INVISIBLE
-            getListfromDatabase = DeviceContent?.queryDBList()
-            var deviceAdapter = DeviceAdapter(getListfromDatabase as ArrayList<String>, myActivity as Context)
-            var mLayoutManager = LinearLayoutManager(activity)
-            recyclerView?.layoutManager = mLayoutManager
-            recyclerView?.itemAnimator = DefaultItemAnimator()
-            recyclerView?.adapter = deviceAdapter
-
-
-        } else {
-            recyclerView?.visibility = View.INVISIBLE
-            noDevices?.visibility = View.VISIBLE
+    private fun removeView() {
+        if (view!!.parent != null) {
+            (view!!.parent as ViewGroup).removeView(view)
 
         }
-        return deviceAdapter
     }
-
-
-
-
-
-
-
-
-
-
 
 }

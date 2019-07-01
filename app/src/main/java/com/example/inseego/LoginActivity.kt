@@ -26,10 +26,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.login_activity)
         var Go = findViewById<Button>(R.id.go)
-        var List_Item = findViewById<ListView>(R.id.list_item)
+        var List = findViewById<ListView>(R.id.list_item)
         val list_adapter = ArrayAdapter(this, R.layout.login_list_item, list)
         val edit_text = findViewById<EditText>(R.id.slider)
-
 
         /* val relativeLayoutSameDay = findViewById<RelativeLayout>(R.layout.login_activity)
           val viewTreeObserver = relativeLayoutSameDay.getViewTreeObserver()
@@ -44,16 +43,16 @@ class MainActivity : AppCompatActivity() {
               }
           })*/
 
-        List_Item.setAdapter(list_adapter)
+        List.setAdapter(list_adapter)
         //function can also be given as an expression
-        List_Item.onItemClickListener =
+        List.onItemClickListener =
             object : AdapterView.OnItemClickListener {
                 override fun onItemClick(
                     parent: AdapterView<*>, view: View,
                     position: Int, id: Long
                 ) {
                     if (position == 0) {
-                        List_Item.visibility = View.INVISIBLE
+                        List.visibility = View.INVISIBLE
                         edit_text.setText(list[position])
                         edit_text.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.arrow_down, 0)
                         down = true
@@ -72,11 +71,11 @@ class MainActivity : AppCompatActivity() {
         edit_text.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.arrow_down, 0)
         edit_text.setOnClickListener({
             if (down) {
-                List_Item.visibility = View.VISIBLE
+                List.visibility = View.VISIBLE
                 edit_text.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.arrow_up, 0)
                 down = false
             } else {
-                List_Item.visibility = View.INVISIBLE
+                List.visibility = View.INVISIBLE
                 edit_text.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.arrow_down, 0)
                 down = true
             }

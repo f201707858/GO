@@ -10,7 +10,7 @@
         android:layout_marginTop="20dp"
         card_view:cardCornerRadius="5dp"
         card_view:contentPadding="25dp"
-        card_view:cardBackgroundColor="	#87CEFA"
+        card_view:cardBackgroundColor="#10000000"
         card_view:cardElevation="4dp"
         card_view:cardMaxElevation="6dp"
 >
@@ -18,7 +18,7 @@
             xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
-            android:padding="2dp"
+            android:padding="0.5dp"
             android:textDirection="rtl"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:fontFamily="sans-serif"

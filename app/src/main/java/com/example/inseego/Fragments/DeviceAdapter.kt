@@ -9,10 +9,11 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.example.inseego.R
 
+
 class DeviceAdapter(Group_List: ArrayList<String>?, _Context: Context) :
     RecyclerView.Adapter<DeviceAdapter.ViewHolder>() {
 
-    var group_list :ArrayList<String>? = null
+    var group_list: ArrayList<String>? = null
     var _context: Context? = null
 
 
@@ -43,7 +44,7 @@ class DeviceAdapter(Group_List: ArrayList<String>?, _Context: Context) :
 
 
     override fun getItemCount(): Int {
-        if (group_list == null) {
+        if (group_list == null || group_list?.size == 0) {
             return 0
         } else {
             return group_list!!.size
@@ -57,10 +58,33 @@ class DeviceAdapter(Group_List: ArrayList<String>?, _Context: Context) :
         }
         notifyDataSetChanged()
     }
+    fun removeItem(position: Int) {
+        group_list?.removeAt(position)
+        notifyItemRemoved(position)
+        notifyItemRangeChanged(position, group_list!!.size)
+    }
+    fun addItem(country: String) {
+        group_list?.add(country)
+        notifyItemInserted(group_list!!.size)
+    }
+
 
     class ViewHolder(val mView: View) : RecyclerView.ViewHolder(mView) {
         val group_name = mView.findViewById<TextView>(R.id.group_title)
     }
-
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
