@@ -1,7 +1,6 @@
-package com.example.inseego.Fragments
+package com.example.inseego.adapters
 
 import android.content.Context
-import android.support.v7.widget.CardView
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -10,8 +9,8 @@ import android.widget.TextView
 import com.example.inseego.R
 
 
-class DeviceAdapter(Group_List: ArrayList<String>?, _Context: Context) :
-    RecyclerView.Adapter<DeviceAdapter.ViewHolder>() {
+class DatabaseAdapter(Group_List: ArrayList<String>?, _Context: Context) :
+    RecyclerView.Adapter<DatabaseAdapter.ViewHolder>() {
 
     var group_list: ArrayList<String>? = null
     var _context: Context? = null

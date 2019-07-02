@@ -6,7 +6,7 @@ import org.json.JSONArray
 
 
 class Omdb_Values {
-    var title: String? = null
+        var title: String? = null
     var posterUrl: String? = null
 
     companion object {

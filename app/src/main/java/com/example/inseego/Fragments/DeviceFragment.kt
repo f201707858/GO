@@ -24,7 +24,15 @@ import android.support.v7.widget.helper.ItemTouchHelper
 import android.util.Log
 import android.widget.*
 import android.widget.Toast
+import com.example.inseego.DataClass.DeviceServiceBuilder
+import com.example.inseego.DataClass.Devices
+import com.example.inseego.RetrofitServices.DevicesService
 import com.example.inseego.Screens
+import com.example.inseego.adapters.DeviceAdapter
+import com.google.gson.Gson
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 
 class DeviceFragment : Fragment() {
@@ -76,7 +84,7 @@ class DeviceFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if (DeviceContent?.checkSize() as Int > 0) {
+       /* if (DeviceContent?.checkSize() as Int > 0) {
             getListfromDatabase = DeviceContent?.queryDBList()
             deviceAdapter = DeviceAdapter(getListfromDatabase as ArrayList<String>, myActivity as Context)
             var mLayoutManager = LinearLayoutManager(activity)
@@ -86,7 +94,8 @@ class DeviceFragment : Fragment() {
         } else {
             recyclerView?.visibility = View.INVISIBLE
             noDevices?.visibility = View.VISIBLE
-        }
+        }*/
+
     }
 
 
@@ -101,7 +110,13 @@ class DeviceFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        getListfromDatabase = DeviceContent?.queryDBList()
+        loadDestinations()
+        var mLayoutManager = LinearLayoutManager(activity)
+        recyclerView?.layoutManager = mLayoutManager
+        recyclerView?.itemAnimator = DefaultItemAnimator()
+
+
+       /* getListfromDatabase = DeviceContent?.queryDBList()
         //recyclerView?.invalidate()
         if (getListfromDatabase != null) {
             if (deviceAdapter == null) {
@@ -122,13 +137,42 @@ class DeviceFragment : Fragment() {
 
                     override
                     fun onLongClick(view: View, position: Int) {
-                        /*  Toast.makeText(
-                              getActivity() , "Long press on position :" + position,
-                              Toast.LENGTH_LONG
-                          ).show()*/
                     }
                 })
-        )
+        )*/
+
+    }
+
+    private fun loadDestinations() {
+
+        val destinationService = DeviceServiceBuilder.buildService(DevicesService::class.java)
+
+        val requestCall = destinationService.getDevicesList()
+
+        requestCall.enqueue(object : Callback<List<Devices>> {
+
+            override fun onResponse(call: Call<List<Devices>>, response: Response<List<Devices>>) {
+                if (response.isSuccessful) {
+                    val destinationList = response.body()          ///////////////.toString()
+                    Log.d("LIST",destinationList.toString())
+                    deviceAdapter = DeviceAdapter(destinationList as ArrayList<Devices>,myActivity as Context)
+                    recyclerView?.adapter = deviceAdapter
+                    /*var gson: Gson = Gson()
+                    var status = gson.fromJson(
+                        destinationList,
+                        MyStatus.class )*/
+                    /*for (i in 0 until destinationList.size) {
+                                    destinationList[i]*/
+                }
+            }
+
+            override fun onFailure(call: Call<List<Devices>>, t: Throwable) {
+                Toast.makeText(getActivity(), "Error Occurred" + t.toString(), Toast.LENGTH_LONG).show()
+
+            }
+        })
+
+
     }
 
 
@@ -150,6 +194,7 @@ class DeviceFragment : Fragment() {
         return m_Text
     }
 
+
     private fun initSwipe() {
         val simpleItemTouchCallback =
             object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
@@ -165,26 +210,26 @@ class DeviceFragment : Fragment() {
                     val position = viewHolder.adapterPosition
                     if (direction == ItemTouchHelper.LEFT) {
                         var item = deviceAdapter!!.group_list!!.get(position)
-                        DeviceContent?.deleteFavourite(item)
+                      //  DeviceContent?.deleteFavourite(item)
                         deviceAdapter!!.removeItem(position)
 
                     } else {
                         removeView()
-                        var edit_name: String? = null
-                        edit_name = alert_Dialog("Edit Title", "Save")
-                        if (edit_name != null) {
-                            var item = deviceAdapter!!.group_list!!.get(position)
-                            DeviceContent?.deleteFavourite(item)
-                            DeviceContent?.storeAsGroup(edit_name)
-                            deviceAdapter!!.addItem(edit_name)
+                      //  var edit_name: String? = null
+                     //   edit_name = alert_Dialog("Edit Title", "Save")
+                     //   if (edit_name != null) {
+                         //   var item = deviceAdapter!!.group_list!!.get(position)
+                         //   DeviceContent?.deleteFavourite(item)
+                          //  DeviceContent?.storeAsGroup(edit_name)
+                           // deviceAdapter!!.addItem(edit_name)
                             //  deviceAdapter?.group_list[position] = edit_name
                             // deviceAdapter!!.notifyDataSetChanged()
-                            //   (view!!.parent as ViewGroup).addView(view)
+                            //   (view!!.parent as ViewGroup).addView(view)*/
 
                         }
 
                     }
-                }
+
 
 
                 override fun onChildDraw(
@@ -249,4 +294,11 @@ class DeviceFragment : Fragment() {
         }
     }
 
+
 }
+
+ /*   class MyStatus {
+        var cameragroup_name: String? = null
+    }*/
+
+
